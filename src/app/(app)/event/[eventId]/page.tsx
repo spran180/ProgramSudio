@@ -26,7 +26,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const eventId = params.eventId;
+  const { eventId } = params;
 
   useEffect(() => {
     if (!eventId) return;
