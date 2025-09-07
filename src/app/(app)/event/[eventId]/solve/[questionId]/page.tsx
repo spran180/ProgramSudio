@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import {
   doc,
   getDoc,
@@ -38,7 +39,10 @@ import { Separator } from '@/components/ui/separator';
 
 type Language = 'javascript' | 'python' | 'cpp';
 
-export default function CodingPage({ params }: { params: { eventId: string; questionId: string } }) {
+export default function CodingPage() {
+  const params = useParams();
+  const eventId = params.eventId as string;
+  const questionId = params.questionId as string;
   const { user } = useAuth();
   const { toast } = useToast();
   const [question, setQuestion] = useState<Question | null>(null);
@@ -48,8 +52,6 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const eventId = params.eventId;
-  const questionId = params.questionId;
 
   const handleLanguageChange = useCallback((value: Language) => {
     setLanguage(value);

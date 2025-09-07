@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Event } from '@/lib/types';
 import { EventForm } from '@/components/events/EventForm';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function EditEventPage({ params }: { params: { eventId: string } }) {
+export default function EditEventPage() {
+  const params = useParams();
+  const eventId = params.eventId as string;
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const { eventId } = params;
 
   useEffect(() => {
     const fetchEvent = async () => {
