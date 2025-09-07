@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function EditEventPage({ params }: { params: { eventId: string } }) {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const eventId = params.eventId;
+  const { eventId } = params;
 
   useEffect(() => {
     const fetchEvent = async () => {
