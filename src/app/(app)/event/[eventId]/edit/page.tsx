@@ -10,18 +10,21 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function EditEventPage({ params }: { params: { eventId: string } }) {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const eventId = params.eventId;
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const docRef = doc(db, 'events', params.eventId);
+      const docRef = doc(db, 'events', eventId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setEvent({ id: docSnap.id, ...docSnap.data() } as Event);
       }
       setLoading(false);
     };
-    fetchEvent();
-  }, [params.eventId]);
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId]);
 
   if (loading) {
     return (

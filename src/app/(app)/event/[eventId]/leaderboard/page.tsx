@@ -10,18 +10,21 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function LeaderboardPage({ params }: { params: { eventId: string } }) {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const eventId = params.eventId;
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const docRef = doc(db, 'events', params.eventId);
+      const docRef = doc(db, 'events', eventId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setEvent({ id: docSnap.id, ...docSnap.data() } as Event);
       }
       setLoading(false);
     };
-    fetchEvent();
-  }, [params.eventId]);
+    if (eventId) {
+        fetchEvent();
+    }
+  }, [eventId]);
 
   if (loading) {
     return (
@@ -47,7 +50,7 @@ export default function LeaderboardPage({ params }: { params: { eventId: string 
         <p className="text-primary font-semibold">Leaderboard</p>
         <h1 className="text-3xl font-bold font-headline">{event.name}</h1>
       </div>
-      <LeaderboardTable eventId={params.eventId} />
+      <LeaderboardTable eventId={eventId} />
     </div>
   );
 }

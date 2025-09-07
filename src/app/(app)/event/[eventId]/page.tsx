@@ -26,16 +26,18 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const eventId = params.eventId;
 
   useEffect(() => {
+    if (!eventId) return;
     const fetchEventData = async () => {
-      const eventDocRef = doc(db, 'events', params.eventId);
+      const eventDocRef = doc(db, 'events', eventId);
       const eventSnap = await getDoc(eventDocRef);
       if (eventSnap.exists()) {
         setEvent({ id: eventSnap.id, ...eventSnap.data() } as Event);
       }
 
-      const questionsQuery = collection(db, 'events', params.eventId, 'questions');
+      const questionsQuery = collection(db, 'events', eventId, 'questions');
       const unsubscribeQuestions = onSnapshot(questionsQuery, (snapshot) => {
         const fetchedQuestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
         setQuestions(fetchedQuestions);
@@ -46,15 +48,15 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
     };
 
     fetchEventData();
-  }, [params.eventId]);
+  }, [eventId]);
   
   useEffect(() => {
-    if (user && questions.length > 0) {
+    if (user && questions.length > 0 && eventId) {
       const fetchSubmissions = async () => {
         const q = query(
             collection(db, 'submissions'),
             where('userId', '==', user.uid),
-            where('eventId', '==', params.eventId),
+            where('eventId', '==', eventId),
             where('status', '==', 'Accepted')
         );
         const submissionSnap = await getDocs(q);
@@ -63,7 +65,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
       }
       fetchSubmissions();
     }
-  }, [user, questions, params.eventId]);
+  }, [user, questions, eventId]);
 
   if (loading) {
     return (
@@ -114,7 +116,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
                       </CardDescription>
                     </div>
                      <Button asChild variant="secondary">
-                       <Link href={`/event/${params.eventId}/solve/${question.id}`}>
+                       <Link href={`/event/${eventId}/solve/${question.id}`}>
                          {isSolved ? 'Review' : 'Solve'} <ArrowRight className="ml-2 h-4 w-4" />
                        </Link>
                      </Button>

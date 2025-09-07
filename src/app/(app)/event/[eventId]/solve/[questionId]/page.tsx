@@ -48,6 +48,8 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const eventId = params.eventId;
+  const questionId = params.questionId;
 
   const handleLanguageChange = useCallback((value: Language) => {
     setLanguage(value);
@@ -57,9 +59,10 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
   }, [question]);
 
   useEffect(() => {
+    if (!eventId || !questionId) return;
     const fetchQuestion = async () => {
       setLoading(true);
-      const docRef = doc(db, 'events', params.eventId, 'questions', params.questionId);
+      const docRef = doc(db, 'events', eventId, 'questions', questionId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const qData = { id: docSnap.id, ...docSnap.data() } as Question;
@@ -69,15 +72,15 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
       setLoading(false);
     };
     fetchQuestion();
-  }, [params.eventId, params.questionId, language]);
+  }, [eventId, questionId, language]);
 
   useEffect(() => {
-    if(user) {
+    if(user && eventId && questionId) {
         const q = query(
             collection(db, "submissions"), 
             where("userId", "==", user.uid),
-            where("eventId", "==", params.eventId),
-            where("questionId", "==", params.questionId)
+            where("eventId", "==", eventId),
+            where("questionId", "==", questionId)
         );
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const subs = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data() } as Submission)).sort((a,b) => b.submittedAt.toMillis() - a.submittedAt.toMillis());
@@ -85,7 +88,7 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
         });
         return () => unsubscribe();
     }
-  }, [user, params.eventId, params.questionId]);
+  }, [user, eventId, questionId]);
 
 
   const handleSubmit = async () => {
@@ -99,8 +102,8 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
       });
 
       await addDoc(collection(db, 'submissions'), {
-        eventId: params.eventId,
-        questionId: params.questionId,
+        eventId: eventId,
+        questionId: questionId,
         userId: user.uid,
         code,
         language,
@@ -114,7 +117,7 @@ export default function CodingPage({ params }: { params: { eventId: string; ques
         setTimeout(() => setShowConfetti(false), 5000);
         
         // Update leaderboard
-        const leaderboardRef = doc(db, 'leaderboards', params.eventId);
+        const leaderboardRef = doc(db, 'leaderboards', eventId);
         await runTransaction(db, async (transaction) => {
           const leaderboardDoc = await transaction.get(leaderboardRef);
           if (!leaderboardDoc.exists()) { return; }
