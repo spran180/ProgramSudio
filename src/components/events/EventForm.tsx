@@ -11,6 +11,7 @@ import {
   onSnapshot,
   deleteDoc,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
@@ -124,8 +125,8 @@ export function EventForm({ event }: EventFormProps) {
         router.push('/dashboard');
       } else {
         const newEventRef = await addDoc(collection(db, 'events'), eventData);
-        // Create an empty leaderboard document
-        await addDoc(collection(db, 'leaderboards'), {
+        // Create an empty leaderboard document using the event's ID
+        await setDoc(doc(db, 'leaderboards', newEventRef.id), {
             eventId: newEventRef.id,
             scores: []
         });
