@@ -14,6 +14,7 @@ export default function LeaderboardPage({ params }: { params: { eventId: string 
 
   useEffect(() => {
     const fetchEvent = async () => {
+      if (!eventId) return;
       const docRef = doc(db, 'events', eventId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -21,9 +22,7 @@ export default function LeaderboardPage({ params }: { params: { eventId: string 
       }
       setLoading(false);
     };
-    if (eventId) {
-        fetchEvent();
-    }
+    fetchEvent();
   }, [eventId]);
 
   if (loading) {
