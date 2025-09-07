@@ -1,11 +1,7 @@
+@import "../components/coding/confetti.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "../components/coding/confetti.css";
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 @layer base {
   :root {
@@ -70,5 +66,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
