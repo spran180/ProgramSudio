@@ -26,6 +26,7 @@ export interface Question {
     python: string;
     cpp: string;
   };
+  organizerId: string;
 }
 
 export interface Submission {

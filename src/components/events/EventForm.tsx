@@ -86,11 +86,11 @@ export function EventForm({ event }: EventFormProps) {
   };
   
   const handleAddQuestion = async () => {
-    if (!event || !newQuestion.title || !newQuestion.description || !newQuestion.starterCode) {
+    if (!event || !user || !newQuestion.title || !newQuestion.description || !newQuestion.starterCode) {
       toast({ variant: 'destructive', title: 'Missing fields', description: 'Please fill all question fields.' });
       return;
     }
-    await addDoc(collection(db, 'events', event.id, 'questions'), newQuestion);
+    await addDoc(collection(db, 'events', event.id, 'questions'), { ...newQuestion, organizerId: user.uid });
     setNewQuestion({ difficulty: 'Easy' });
     setShowNewQuestionForm(false);
     toast({ title: 'Success', description: 'Question added to the event.' });
