@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
 
@@ -24,47 +24,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubscribeUser: () => void = () => {};
+
     const unsubscribeAuth = onAuthStateChanged(auth, (fbUser) => {
       setFirebaseUser(fbUser);
-      if (!fbUser) {
+      
+      // Unsubscribe from previous user's snapshot listener
+      unsubscribeUser();
+
+      if (fbUser) {
+        setLoading(true);
+        const userDocRef = doc(db, 'users', fbUser.uid);
+        
+        unsubscribeUser = onSnapshot(userDocRef, (userDoc) => {
+          if (userDoc.exists()) {
+            setUser(userDoc.data() as User);
+          } else {
+            setUser(null);
+          }
+          setLoading(false);
+        }, (error) => {
+          console.error("Error fetching user data:", error);
+          setUser(null);
+          setLoading(false);
+        });
+      } else {
         setUser(null);
         setLoading(false);
       }
-      // The rest is handled by the user data snapshot listener
     });
 
-    return () => unsubscribeAuth();
-  }, []);
-
-  useEffect(() => {
-    if (!firebaseUser) {
-      // No firebase user, so no user data to fetch.
-      setLoading(false);
-      return;
+    return () => {
+      unsubscribeAuth();
+      unsubscribeUser();
     };
-    
-    setLoading(true);
-    const userDocRef = doc(db, 'users', firebaseUser.uid);
-
-    const unsubscribeUser = onSnapshot(userDocRef, (userDoc) => {
-      if (userDoc.exists()) {
-        setUser(userDoc.data() as User);
-      } else {
-        // This case can happen if the user record is created in auth
-        // but the firestore doc creation fails.
-        setUser(null);
-      }
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching user data:", error);
-      setUser(null);
-      setLoading(false);
-    });
-
-    return () => unsubscribeUser();
-
-  }, [firebaseUser]);
-
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, firebaseUser, loading }}>
