@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribeAuth = onAuthStateChanged(auth, (fbUser) => {
       setFirebaseUser(fbUser);
       
-      // Unsubscribe from previous user's snapshot listener
       unsubscribeUser();
 
       if (fbUser) {

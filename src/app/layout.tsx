@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'CodeArena',
+  title: 'ProgramStudio',
   description: 'An online platform for hosting in-house coding events.',
 };
 
